@@ -103,7 +103,7 @@ main {
   bottom: 10px;
 
   font-family: 'arial';
-  background-color: #f9ce03; /* Green */
+  background-color: #f9ce03;
   border: none;
   color: black;
   padding: 15px 32px;
@@ -113,9 +113,21 @@ main {
   font-size: 16px;
   user-select: none;
 }
-.button:hover {
-  background-color: #78b87a; /* Green */
+
+.button {
+  font-family: 'arial';
+  background-color: #f9ce03;
+  border: none;
+  color: black;
+  padding: 5px 5px;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  font-size: 16px;
+  user-select: none;
+  border-radius: 3px;
 }
-.button:focus {
-  background-color: #78b87a;
+
+.button:hover {
+  background-color: #ffee99;
 }

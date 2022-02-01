@@ -1,4 +1,7 @@
 /* eslint-disable require-jsdoc */
+
+import { captureOutline } from './selectionOutlineToCurve.js'
+
 export default function init() {
   const {
     Color,
@@ -29,6 +32,15 @@ export default function init() {
     enableFrustumCulling: true,
   })
 
+  // HACK: Remove the OVERLAY passes because they clear the depth buffer.
+  // We need to do this else the outline rendering is now depth composited.
+  renderer.__passes[zeaEngine.PassType.OVERLAY] = []
+
+  // captureOutline(renderer)
+  document.getElementById('capture-outline').addEventListener('click', () => {
+    captureOutline(renderer)
+  })
+
   // renderer.solidAngleLimit = 0.0;
   renderer.setScene(scene)
   renderer.getViewport().getCamera().setPositionAndTarget(new Vec3(12, 12, 10), new Vec3(0, 0, 1.5))
@@ -44,8 +56,8 @@ export default function init() {
 
   // Setup Selection Manager
   const selectionManager = new SelectionManager(appData, {
-    selectionOutlineColor: new Color(1, 1, 0.2, 0.1),
-    branchSelectionOutlineColor: new Color(1, 1, 0.2, 0.1),
+    selectionOutlineColor: new Color(1, 0, 0.2, 0.1),
+    branchSelectionOutlineColor: new Color(1, 0, 0.2, 0.1),
   })
   appData.selectionManager = selectionManager
   // Setup Progress Bar
