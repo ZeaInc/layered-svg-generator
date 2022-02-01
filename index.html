@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html class="h-full">
+  <head>
+    <title>Zea CAD Viewer</title>
+    <link
+      rel="shortcut icon"
+      type="image/png"
+      href="./data/favicon-32x32.png"
+    />
+    <meta charset="UTF-8" />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.9/tailwind.min.css"
+    />
+    <link rel="stylesheet" href="./src/styles.css"/>
+    <script src="https://cdn.jsdelivr.net/npm/@zeainc/zea-engine@4.0.2-strict.2/dist/index.umd.js"></script>
+    <!-- <script src="http://localhost:8001/dist/index.umd.js"></script> -->
+    <script src="https://cdn.jsdelivr.net/npm/@zeainc/zea-cad@4.0.2-next.2/dist/index.umd.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@zeainc/zea-ux@4.0.2-next.0/dist/index.umd.js"></script>
+
+    <script src="https://www.gstatic.com/draco/v1/decoders/draco_decoder_gltf.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@zeainc/gltf-loader@4.0.4-next.0/dist/index.umd.js"></script>
+
+    <script src="./src/zea-progress-bar.js" type="module"></script>
+    <script src="./src/zea-fps-display.js" type="module"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@zeainc/zea-tree-view@0.0.5/dist/zea-tree-view.umd.js"></script>
+    <script src="./src/drop-zone.js" type="module"></script>
+    <script src="./src/login-dialog.js" type="module"></script>
+  </head>
+
+  <body class="overflow-hidden h-full">
+    <div class="h-full flex flex-col">
+      <header class="p-2">
+        <img src="./data/logo-zea.svg" id="logo"></img>
+      </header>
+      <main class="flex flex-col flex-1">
+        <div class="flex-1" id="topPanel">
+          <div class="splitter">
+            <div id="leftPanel">
+              <zea-tree-view
+                id="tree"
+                class="select-none"
+              ></zea-tree-view>
+            </div>
+            <div class="separator" id="separatorV"></div>
+            <div id="mainPanel" class="flex-1">
+              <div id="canvas-holder">
+                <canvas id="canvas" > </canvas>
+              </div>
+              <div class="xr-button hidden" id="xr-button"></div>
+              <zea-fps-display class="fps-display" id="fps"></zea-fps-display>
+              <zea-progress-bar id="progress"></zea-progress-bar>
+            </div>
+          </div>
+        </div>
+        <!-- Uncomment these lines to provide a resizable bottom panel
+        <div class="separator" id="separatorH"></div>
+        <div id="bottomPanel">
+        </div> -->
+      </main>
+      <drop-zone id="dropZone" class="select-none"></drop-zone>
+      <login-dialog id="login" class="select-none"></login-dialog>
+    </div>
+    <script type="module">
+      import dragElement from './src/panels.js'
+      const separatorV = document.getElementById("separatorV");
+      const leftPanel = document.getElementById("leftPanel");
+      const mainPanel = document.getElementById("mainPanel");
+      dragElement(separatorV, leftPanel, mainPanel, "H");
+
+      const separatorH = document.getElementById("separatorH");
+      const topPanel = document.getElementById("topPanel");
+      const bottomPanel = document.getElementById("bottomPanel");
+      if (separatorH && topPanel && bottomPanel) {
+        dragElement(separatorH, topPanel, bottomPanel, "V");
+      }
+    </script>
+
+    <script type="module">
+      import init from './src/init.js'
+
+      // To enable simple authentication in this app
+      // change this value to true.
+      if (false) {
+        // Show the login page.
+        const login = document.getElementById("login");
+        login.show(()=> {
+          // When it is closed, init the scene.
+          init()
+        })
+      } else {
+        init()
+      }
+    </script>
+  </body>
+</html>
