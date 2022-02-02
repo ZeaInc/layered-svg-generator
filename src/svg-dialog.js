@@ -1,6 +1,7 @@
 import { auth, shouldAuthenticate, shouldProvideRoomID } from './auth.js'
 const { Color } = window.zeaEngine
 
+const xmlns = `http://www.w3.org/2000/svg`
 class SVGDialog extends HTMLElement {
   constructor() {
     super()
@@ -15,8 +16,8 @@ class SVGDialog extends HTMLElement {
     this.modal.appendChild(this.modalContent)
 
     this.modalContent.innerHTML = `
-        <div class="container">
-          <svg  id="svgContainer">     </svg>
+        <div class="container" id="container"">
+          <svg id="svgContainer" xmlns="${xmlns}"></svg>
         </div>
         
         <button type="close" id="close">Close</button>
@@ -51,8 +52,7 @@ class SVGDialog extends HTMLElement {
   margin: 15% auto; /* 15% from the top and centered */
   padding: 20px;
   border: 1px solid #888;
-  width: 80%; /* Could be more or less, depending on screen size */
-  max-width: 600px;
+  width: 60%; /* Could be more or less, depending on screen size */
 }
 
 
@@ -143,17 +143,52 @@ span.psw {
     shadowRoot.appendChild(styleTag)
   }
 
-  show(onCloseCallback) {
+  show() {
     this.modal.style.display = 'block'
+    const svgContainer = this.shadowRoot.getElementById('svgContainer')
+    while (svgContainer.firstChild) svgContainer.remove(svgContainer.firstChild)
   }
 
-  addSvg(svgElem, width, height) {
+  addSvg(part, svgElem, boxWidth, boxHeight, url) {
     const svgContainer = this.shadowRoot.getElementById('svgContainer')
-    svgContainer.setAttribute('width', width.baseVal.value)
-    svgContainer.setAttribute('height', height.baseVal.value)
-    // svgContainer.width = width
-    // svgContainer.height = height
-    svgContainer.appendChild(svgElem)
+    svgContainer.setAttributeNS(null, 'viewBox', '0 0 ' + boxWidth + ' ' + boxHeight)
+    svgContainer.setAttribute('width', '100%')
+    svgContainer.setAttribute('height', '100%')
+
+    console.log(part.getPath())
+    const parseFill = (fillStr) => {
+      return fillStr
+        .substring(4, fillStr.length - 1)
+        .split(',')
+        .map((v) => Number.parseInt(v))
+    }
+
+    const g = document.createElementNS(xmlns, 'g')
+    for (let i = svgElem.children.length - 1; i >= 0; i--) {
+      const elem = svgElem.children[i]
+      console.log(elem.getAttribute('fill'), elem.getAttribute('stroke'))
+      const parts = parseFill(elem.getAttribute('fill'))
+      if (parts[0] < 250 || parts[1] < 250 || parts[2] < 250) {
+        g.appendChild(elem)
+      }
+    }
+    if (g.firstChild) {
+      g.addEventListener('click', () => {
+        console.log(part.getPath())
+      })
+      svgContainer.appendChild(g)
+    } else {
+      console.log('no image data for part:', part.getPath())
+    }
+
+    // const image = new Image()
+    // image.src = url
+    // const container = this.shadowRoot.getElementById('container')
+    // container.appendChild(image)
+    // image.setAttribute('width', '30%')
+    // image.setAttribute('height', '30%')
+
+    // container.appendChild(svgElem)
   }
 
   close() {

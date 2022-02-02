@@ -24,7 +24,7 @@ export default function init() {
 
   const urlParams = new URLSearchParams(window.location.search)
   const scene = new Scene()
-  scene.setupGrid(10.0, 10)
+  // scene.setupGrid(10.0, 10)
 
   const renderer = new GLRenderer(document.getElementById('canvas'), {
     debugGeomIds: false,
