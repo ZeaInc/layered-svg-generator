@@ -61,7 +61,7 @@ export async function captureOutline(renderer) {
   })
 
   dialog = document.getElementById('svg-dialog')
-  dialog.show(url)
+  dialog.show(url, parts.length)
 
   let id = 0
   for (const part of parts) {

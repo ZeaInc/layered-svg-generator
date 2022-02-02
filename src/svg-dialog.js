@@ -16,10 +16,11 @@ class SVGDialog extends HTMLElement {
     this.modal.appendChild(this.modalContent)
 
     this.modalContent.innerHTML = `
-        <div class="container" id="container"">
+        <div class="container" id="container">
           <svg id="svgContainer" xmlns="${xmlns}"></svg>
+          <progress id="progress" class="hidden" max="100"></progress>
         </div>
-        
+        <text id="partId">Part:</text>
         <button type="close" id="close">Close</button>
         `
 
@@ -49,7 +50,7 @@ class SVGDialog extends HTMLElement {
 /* Modal Content/Box */
 .modal-content {
   background-color: #eeeeee;
-  margin: 15% auto; /* 15% from the top and centered */
+  margin: 5% auto; /* 15% from the top and centered */
   padding: 20px;
   border: 1px solid #888;
   width: 60%; /* Could be more or less, depending on screen size */
@@ -69,16 +70,6 @@ class SVGDialog extends HTMLElement {
   color: black;
   text-decoration: none;
   cursor: pointer;
-}
-
-/* Full-width inputs */
-input[type=text], input[type=password] {
-  width: 100%;
-  padding: 12px 20px;
-  margin: 8px 0;
-  display: inline-block;
-  border: 1px solid #ccc;
-  box-sizing: border-box;
 }
 
 /* Set a style for all buttons */
@@ -104,12 +95,6 @@ button:hover {
   background-color: #f44336;
 }
 
-/* Center the avatar image inside this container */
-.imgcontainer {
-  text-align: center;
-  margin: 24px 0 12px 0;
-  overflow:auto;
-}
 
 /* Avatar image */
 img.avatar {
@@ -118,7 +103,8 @@ img.avatar {
 
 /* Add padding to containers */
 .container {
-  padding: 16px;
+  padding: 6px;
+  margin: 6px;
 }
 
 /* The "Forgot password" text */
@@ -138,15 +124,34 @@ span.psw {
   }
 }
 
+
+#progress {
+  width: 100%;
+}
+.hidden {
+  visibility: hidden;
+}
+
 `)
     )
     shadowRoot.appendChild(styleTag)
   }
 
-  show() {
+  show(baseImageUrl, numParts) {
     this.modal.style.display = 'block'
     const svgContainer = this.shadowRoot.getElementById('svgContainer')
     while (svgContainer.firstChild) svgContainer.remove(svgContainer.firstChild)
+
+    // Add the background image.
+    // const image = document.createElementNS(xmlns, 'image')
+    // image.setAttribute('href', baseImageUrl)
+    // svgContainer.appendChild(image)
+
+    this.numParts = numParts
+    this.addedParts = 0
+    const progress = this.shadowRoot.getElementById('progress')
+    progress.value = 0
+    progress.classList.remove('hidden')
   }
 
   addSvg(part, svgElem, boxWidth, boxHeight, url) {
@@ -169,12 +174,17 @@ span.psw {
       console.log(elem.getAttribute('fill'), elem.getAttribute('stroke'))
       const parts = parseFill(elem.getAttribute('fill'))
       if (parts[0] < 250 || parts[1] < 250 || parts[2] < 250) {
+        elem.setAttribute('stroke', 'black')
+        // elem.setAttribute('fill-opacity', 0.01)
+        elem.setAttribute('fill-opacity', 0.3)
+        elem.setAttribute('stroke-width', 2)
         g.appendChild(elem)
       }
     }
     if (g.firstChild) {
       g.addEventListener('click', () => {
-        console.log(part.getPath())
+        const partId = this.shadowRoot.getElementById('partId')
+        partId.textContent = 'Part:' + part.getPath()
       })
       svgContainer.appendChild(g)
     } else {
@@ -189,6 +199,15 @@ span.psw {
     // image.setAttribute('height', '30%')
 
     // container.appendChild(svgElem)
+
+    this.addedParts++
+
+    const progress = this.shadowRoot.getElementById('progress')
+    progress.value = (this.addedParts / this.numParts) * 100
+
+    if (this.addedParts == this.numParts) {
+      setTimeout(() => progress.classList.add('hidden'), 1000)
+    }
   }
 
   close() {
