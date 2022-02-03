@@ -188,6 +188,17 @@ span.psw {
         const partId = this.shadowRoot.getElementById('partId')
         partId.textContent = 'Part:' + part.getPath()
       })
+      g.addEventListener('mouseover', () => {
+        svgContainer.appendChild(g)
+        for (let i = g.children.length - 1; i >= 0; i--) {
+          g.children[i].setAttribute('stroke', 'gold')
+        }
+      })
+      g.addEventListener('mouseleave', () => {
+        for (let i = g.children.length - 1; i >= 0; i--) {
+          g.children[i].setAttribute('stroke', 'black')
+        }
+      })
       svgContainer.appendChild(g)
     } else {
       console.log('no image data for part:', part.getPath())
