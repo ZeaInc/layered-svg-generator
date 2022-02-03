@@ -145,9 +145,9 @@ span.psw {
     }
 
     // Add the background image.
-    // const image = document.createElementNS(xmlns, 'image')
-    // image.setAttribute('href', baseImageUrl)
-    // svgContainer.appendChild(image)
+    const image = document.createElementNS(xmlns, 'image')
+    image.setAttribute('href', baseImageUrl)
+    svgContainer.appendChild(image)
 
     this.numParts = numParts
     this.addedParts = 0
