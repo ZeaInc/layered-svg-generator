@@ -140,7 +140,9 @@ span.psw {
   show(baseImageUrl, numParts) {
     this.modal.style.display = 'block'
     const svgContainer = this.shadowRoot.getElementById('svgContainer')
-    while (svgContainer.firstChild) svgContainer.remove(svgContainer.firstChild)
+    while (svgContainer.lastChild) {
+      svgContainer.removeChild(svgContainer.lastChild)
+    }
 
     // Add the background image.
     // const image = document.createElementNS(xmlns, 'image')
