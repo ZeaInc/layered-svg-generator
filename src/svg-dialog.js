@@ -156,7 +156,7 @@ span.psw {
     progress.classList.remove('hidden')
   }
 
-  addSvg(part, svgElem, boxWidth, boxHeight, url) {
+  addSvg(part, svgElem, boxWidth, boxHeight, labelText, labelPos2D, labelLineEnd2D) {
     const svgContainer = this.shadowRoot.getElementById('svgContainer')
     svgContainer.setAttributeNS(null, 'viewBox', '0 0 ' + boxWidth + ' ' + boxHeight)
     svgContainer.setAttribute('width', '100%')
@@ -176,10 +176,10 @@ span.psw {
       console.log(elem.getAttribute('fill'), elem.getAttribute('stroke'))
       const parts = parseFill(elem.getAttribute('fill'))
       if (parts[0] < 250 || parts[1] < 250 || parts[2] < 250) {
-        elem.setAttribute('stroke', 'black')
         // elem.setAttribute('fill-opacity', 0.01)
-        elem.setAttribute('fill-opacity', 0.3)
-        elem.setAttribute('stroke-width', 2)
+        elem.setAttribute('fill-opacity', 1)
+        elem.setAttribute('stroke', 'black')
+        elem.setAttribute('stroke-width', 1)
         g.appendChild(elem)
       }
     }
@@ -191,7 +191,7 @@ span.psw {
       g.addEventListener('mouseover', () => {
         svgContainer.appendChild(g)
         for (let i = g.children.length - 1; i >= 0; i--) {
-          g.children[i].setAttribute('stroke', 'gold')
+          g.children[i].setAttribute('stroke', 'red')
         }
       })
       g.addEventListener('mouseleave', () => {
@@ -204,14 +204,34 @@ span.psw {
       console.log('no image data for part:', part.getPath())
     }
 
-    // const image = new Image()
-    // image.src = url
-    // const container = this.shadowRoot.getElementById('container')
-    // container.appendChild(image)
-    // image.setAttribute('width', '30%')
-    // image.setAttribute('height', '30%')
+    const labelLineNode = document.createElementNS(xmlns, 'line')
+    labelLineNode.setAttribute('x1', labelLineEnd2D.x)
+    labelLineNode.setAttribute('y1', labelLineEnd2D.y)
+    labelLineNode.setAttribute('x2', labelPos2D.x)
+    labelLineNode.setAttribute('y2', labelPos2D.y)
+    labelLineNode.setAttribute('stroke', 'black')
+    labelLineNode.setAttribute('stroke-width', 1)
+    g.appendChild(labelLineNode)
 
-    // container.appendChild(svgElem)
+    // var bbox = labelTextNode.getBBox()
+    const circleWidth = 24 // bbox.width + 6
+
+    const labelG = document.createElementNS(xmlns, 'g')
+    labelG.setAttribute('transform', `translate(${labelPos2D.x},${labelPos2D.y})`)
+    g.appendChild(labelG)
+    const labelCircleNode = document.createElementNS(xmlns, 'circle')
+    labelCircleNode.setAttribute('r', circleWidth * 0.5)
+    labelCircleNode.setAttribute('fill', 'white')
+    labelCircleNode.setAttribute('stroke', 'black')
+    labelCircleNode.setAttribute('stroke-width', 1)
+    labelG.appendChild(labelCircleNode)
+
+    const labelTextNode = document.createElementNS(xmlns, 'text')
+    labelTextNode.appendChild(document.createTextNode(labelText))
+    labelTextNode.setAttribute('text-anchor', 'middle')
+    labelTextNode.setAttribute('y', 6)
+    labelTextNode.setAttribute('stroke', 'black')
+    labelG.appendChild(labelTextNode)
 
     this.addedParts++
 

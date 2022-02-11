@@ -4,9 +4,10 @@ const { Color, Material, GeomItem, Box3, CADPart } = zeaEngine
 
 const renderPartMask = (cadPart, renderer) => {
   return new Promise((resolve) => {
-    const color = Color.random(-0.5)
-    cadPart.addHighlight('pickingMask', color, true)
+    renderer.forceRender()
 
+    const color = Color.random(0.5)
+    cadPart.addHighlight('pickingMask', color, true)
     const viewport = renderer.getViewport()
     viewport.drawHighlights = (renderstate) => {
       const gl = renderer.gl
@@ -53,8 +54,10 @@ export async function captureOutline(renderer) {
 
   const scene = renderer.getScene()
   const parts = []
+  const boundingBox = new Box3()
   scene.getRoot().traverse((treeItem) => {
     if (treeItem instanceof CADPart) {
+      boundingBox.addBox3(treeItem.boundingBoxParam.value)
       parts.push(treeItem)
     }
   })
@@ -62,14 +65,34 @@ export async function captureOutline(renderer) {
   dialog = document.getElementById('svg-dialog')
   dialog.show(url, parts.length)
 
+  const center = boundingBox.center()
+  const boxRadius = boundingBox.diagonal().length() * 0.5
+
   let id = 0
   for (const part of parts) {
     const result = await renderPartMask(part, renderer)
     if (result.svg.children.length > 0) {
-      dialog.addSvg(part, result.svg, result.width, result.height, result.url)
+      // Calculate the 2d position of label elements
+      const partCenter = part.boundingBoxParam.value.center()
+      const labelOffset = partCenter.subtract(center)
+      labelOffset.normalizeInPlace()
+      labelOffset.scaleInPlace(boxRadius * 0.75 + boxRadius * 0.25 * Math.random())
+      const labelPos = center.add(labelOffset)
+      const labelPos2D = renderer.getViewport().calcScreenPosFromWorldPos(labelPos)
+      const labelLineEnd2D = renderer.getViewport().calcScreenPosFromWorldPos(partCenter)
+      // const labelText = instanceItem.getName()
+      // const labelText = part.getName()
+      // const labelText = instanceItem.getName() + ':' + part.getName()
+      const labelText = id + ''
+
+      dialog.addSvg(part, result.svg, result.width, result.height, labelText, labelPos2D, labelLineEnd2D)
       id++
     }
   }
+
+  parts.forEach((part) => {
+    part.visibleParam.value = true
+  })
 
   viewport.drawHighlights = origDrawHighlights
   renderer.requestRedraw()
