@@ -1,7 +1,6 @@
 let dialog
 
-const { Color } = zeaEngine
-const { CADPart } = zeaCad
+const { Color, Material, GeomItem, Box3, CADPart } = zeaEngine
 
 const renderPartMask = (cadPart, renderer) => {
   return new Promise((resolve) => {

@@ -12,14 +12,15 @@ export default function init() {
     resourceLoader,
     AssetLoadContext,
     GeomItem,
-    ObjAsset,
     Lines,
     LinesProxy,
     Mesh,
     MeshProxy,
     InstanceItem,
+    CADAsset,
+    CADBody,
+    PMIItem,
   } = zeaEngine
-  const { CADAsset, CADBody, PMIItem } = zeaCad
   const { SelectionManager } = zeaUx
 
   const urlParams = new URLSearchParams(window.location.search)
@@ -170,48 +171,17 @@ export default function init() {
 
   // ////////////////////////////////////////////
   // Load the asset
-  const calcSceneComplexity = () => {
-    let geomItems = 0
-    let triangles = 0
-    let lines = 0
-    scene.getRoot().traverse((item) => {
-      geomItems++
-      if (item instanceof GeomItem) {
-        const geom = item.geomParam.value
-        if (geom instanceof Lines) {
-          lines += geom.getNumSegments()
-        } else if (geom instanceof LinesProxy) {
-          lines += geom.getNumLineSegments()
-        } else if (geom instanceof Mesh) {
-          triangles += geom.computeNumTriangles()
-        } else if (geom instanceof MeshProxy) {
-          triangles += geom.__buffers.indices ? geom.getNumTriangles() : geom.__buffers.numVertices / 3
-        }
-      }
-    })
-    console.log('geomItems:' + geomItems + ' lines: ' + lines + ' triangles:', triangles)
-  }
   const loadCADAsset = (zcad, filename) => {
     // Note: leave the asset name empty so that the asset
     // gets the name of the product in the file.
     const asset = new CADAsset()
 
     const context = new AssetLoadContext()
+    context.units = 'Millimeters'
     // pass the camera in wth the AssetLoadContext so that
     // PMI classes can bind to it.
     context.camera = renderer.getViewport().getCamera()
     asset.load(zcad, context).then(() => {
-      const materials = asset.getMaterialLibrary().getMaterials()
-      materials.forEach((material) => {
-        // Convert linear space values to gamma space values.
-        // The shaders assume gamma space values, to convert to linear at render time.
-        const baseColorParam = material.getParameter('BaseColor')
-        if (baseColorParam) {
-          const baseColor = baseColorParam.value.toGamma()
-          baseColorParam.setValue(baseColor)
-        }
-      })
-
       // The following is a quick hack to remove the black outlines around PMI text.
       // We do not crete ourlines around transparent geometries, so by forcing
       // the PMI items sub-trees to be considered transparent, it moves them into
@@ -231,62 +201,13 @@ export default function init() {
 
       renderer.frameAll()
     })
-    asset.getGeometryLibrary().on('loaded', () => {
-      calcSceneComplexity()
-    })
     scene.getRoot().addChild(asset)
-  }
-
-  const loadGLTFAsset = (url, filename) => {
-    const { GLTFAsset } = gltfLoader
-    const asset = new GLTFAsset(filename)
-    asset.load(url, filename).then(() => {
-      calcSceneComplexity()
-      renderer.frameAll()
-    })
-    scene.getRoot().addChild(asset)
-    return asset
-  }
-
-  const loadOBJAsset = (url, filename) => {
-    const asset = new ObjAsset(filename)
-    asset.load(url).then(() => {
-      calcSceneComplexity()
-      renderer.frameAll()
-    })
-    scene.getRoot().addChild(asset)
-    return asset
-  }
-
-  const loadAsset = (url, filename) => {
-    if (filename.endsWith('zcad')) {
-      return loadCADAsset(url, filename)
-    } else if (filename.endsWith('gltf') || filename.endsWith('glb')) {
-      return loadGLTFAsset(url, filename)
-    } else if (filename.endsWith('obj')) {
-      return loadOBJAsset(url, filename)
-    } else {
-      throw new Error('Unsupported file type:' + filename)
-    }
   }
 
   if (urlParams.has('zcad')) {
     loadCADAsset(urlParams.get('zcad'))
     const dropZone = document.getElementById('dropZone')
     if (dropZone) dropZone.hide()
-  } else if (urlParams.has('gltf')) {
-    loadGLTFAsset(urlParams.get('gltf'))
-    const dropZone = document.getElementById('dropZone')
-    if (dropZone) dropZone.hide()
-  } else if (urlParams.has('obj')) {
-    loadOBJAsset(urlParams.get('obj'))
-    const dropZone = document.getElementById('dropZone')
-    if (dropZone) dropZone.hide()
-  } else {
-    const dropZone = document.getElementById('dropZone')
-    dropZone.display((url, filename) => {
-      loadAsset(url, filename)
-    })
   }
 
   // const xfo = new Xfo();

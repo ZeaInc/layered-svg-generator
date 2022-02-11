@@ -13,13 +13,9 @@
       href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.9/tailwind.min.css"
     />
     <link rel="stylesheet" href="./src/styles.css"/>
-    <script src="https://cdn.jsdelivr.net/npm/@zeainc/zea-engine@4.0.2-strict.2/dist/index.umd.js"></script>
-    <!-- <script src="http://localhost:8001/dist/index.umd.js"></script> -->
-    <script src="https://cdn.jsdelivr.net/npm/@zeainc/zea-cad@4.0.2-next.2/dist/index.umd.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@zeainc/zea-ux@4.0.2-next.0/dist/index.umd.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@zeainc/zea-engine@4.1.2/dist/index.umd.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@zeainc/zea-ux@4.0.4/dist/index.umd.js"></script>
 
-    <script src="https://www.gstatic.com/draco/v1/decoders/draco_decoder_gltf.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@zeainc/gltf-loader@4.0.4-next.0/dist/index.umd.js"></script>
 
     <script src="./src/zea-progress-bar.js" type="module"></script>
     <script src="./src/zea-fps-display.js" type="module"></script>
@@ -37,6 +33,7 @@
     <div class="h-full flex flex-col">
       <header class="p-2 flex flex-row ">
         <img src="./data/logo-zea.svg" id="logo"></img>
+        <button  class="button ml-5" id="generate-labels">Generate Part Labels</button>
         <button  class="button ml-5" id="capture-outline">Capture Outline</button>
       </header>
       <main class="flex flex-col flex-1">
