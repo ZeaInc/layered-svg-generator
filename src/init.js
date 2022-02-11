@@ -1,6 +1,7 @@
 /* eslint-disable require-jsdoc */
 
 import { captureOutline } from './selectionOutlineToCurve.js'
+import { generateLabels } from './generateLabels.js'
 
 export default function init() {
   const {
@@ -38,6 +39,9 @@ export default function init() {
   renderer.__passes[zeaEngine.PassType.OVERLAY] = []
 
   // captureOutline(renderer)
+  document.getElementById('generate-labels').addEventListener('click', () => {
+    generateLabels(scene)
+  })
   document.getElementById('capture-outline').addEventListener('click', () => {
     captureOutline(renderer)
   })
